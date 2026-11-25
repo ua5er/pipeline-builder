@@ -1,0 +1,197 @@
+{
+  "name": "video-ad",
+  "goal": "One 30-second vertical video ad for a subscription photo-editing app, ready to launch as a Meta and TikTok test",
+  "goal_type": "video ad",
+  "budget_mode": "standard",
+  "facts_file": "facts.md",
+  "consumer_dependent": true,
+  "consumer_eval": {
+    "who": "US adults 25-45 who edit photos on their phone and scroll Reels or TikTok with sound off",
+    "how_they_judge": [
+      "stops scrolling in the first 1-2 seconds",
+      "understands what the app does without sound",
+      "believes the before/after is real",
+      "sees what they gain and that it is quick",
+      "knows the next step (download, free trial)"
+    ],
+    "metrics": ["thumb-stop rate (3 s views / impressions)", "hold rate to 15 s", "CTR", "cost per trial"]
+  },
+  "stages": [
+    {
+      "id": "research",
+      "name": "Competitor and audience research",
+      "human_team_equivalent": "strategist with a researcher",
+      "owner_agent": "researcher",
+      "inputs": ["facts.md"],
+      "outputs": [".pipeline/out/research/snapshot.md"],
+      "skill_queries": ["competitor ad research", "competitor creative parser"],
+      "skills": ["ua5er/user-acquisition-skills@competitor-creative-parser", "agricidaniel/claude-ads@ads-competitor"],
+      "skills_rationale": {
+        "ua5er/user-acquisition-skills@competitor-creative-parser": "tags 50+ library ads into a market snapshot with a taxonomy and confirm pass",
+        "agricidaniel/claude-ads@ads-competitor": "most-installed competitor ad skill, adds a second lens"
+      },
+      "max_takes": 1,
+      "est_tokens": 150000,
+      "external_usd": 0.75,
+      "notes": "Meta Ad Library, US, last 90 days, 50-60 ads; ad library capture has no audio",
+      "gate": {
+        "type": "script",
+        "count": 1,
+        "est_tokens": 0,
+        "criteria": ["at least 40 ads tagged", "every ad has hook type, format and claim fields"],
+        "pass_rule": "script exits 0"
+      }
+    },
+    {
+      "id": "concept",
+      "name": "Concepts and hooks",
+      "human_team_equivalent": "creative director with strategist",
+      "owner_agent": "writer",
+      "inputs": [".pipeline/out/research/snapshot.md", "facts.md"],
+      "outputs": [".pipeline/out/concepts.md"],
+      "skill_queries": ["video ad hooks", "creative brief from market research"],
+      "skills": ["ua5er/user-acquisition-skills@market-to-creative-brief", "mbfinotti/advertising-skills@ad-hook-analyzer"],
+      "skills_rationale": {
+        "ua5er/user-acquisition-skills@market-to-creative-brief": "turns the snapshot into decisions and motion briefs",
+        "mbfinotti/advertising-skills@ad-hook-analyzer": "scores and force-ranks openings; 26.7K installs"
+      },
+      "max_takes": 2,
+      "est_tokens": 60000,
+      "notes": "5 concepts, one line each, plus 3 hooks per concept",
+      "gate": {
+        "type": "panel",
+        "agent": "panel",
+        "count": 30,
+        "est_tokens": 40000,
+        "criteria": ["states WHAT the app does", "states the GAIN", "would keep watching"],
+        "pass_rule": "lead picks the 2 concepts with the largest gap over the rest; drop any concept under 50% WHAT",
+        "report": ".pipeline/gates/concept-panel.md"
+      }
+    },
+    {
+      "id": "script",
+      "name": "Script, shot list and on-screen text",
+      "human_team_equivalent": "scriptwriter, reviewed by the creative director and a claims check",
+      "owner_agent": "writer",
+      "inputs": [".pipeline/out/concepts.md", "facts.md"],
+      "outputs": [".pipeline/out/script.md"],
+      "skill_queries": ["video ad script", "ugc ad script"],
+      "skills": ["mbfinotti/advertising-skills@ugc-ad-scripts", "gooseworks-ai/goose-skills@write-video-ad-script"],
+      "skills_rationale": {
+        "mbfinotti/advertising-skills@ugc-ad-scripts": "hook, body, CTA structure a creator can film",
+        "gooseworks-ai/goose-skills@write-video-ad-script": "ties every line to a sourced angle and product proof"
+      },
+      "max_takes": 3,
+      "est_tokens": 50000,
+      "gate": {
+        "type": "critic",
+        "agent": "critic",
+        "count": 1,
+        "est_tokens": 30000,
+        "criteria": ["hook works sound-off in 2 s", "one promise, proven on screen", "every claim is in facts.md", "30 s or less at natural pace", "platform policy safe (no before/after body claims)"],
+        "pass_rule": "all criteria pass",
+        "report": ".pipeline/gates/script.md"
+      }
+    },
+    {
+      "id": "storyboard",
+      "name": "Storyboard with first-frame prompts",
+      "human_team_equivalent": "storyboard artist",
+      "owner_agent": "writer",
+      "inputs": [".pipeline/out/script.md"],
+      "outputs": [".pipeline/out/storyboard.md"],
+      "skill_queries": ["storyboard", "shot list first frame prompts"],
+      "skills": ["101-skills/superpowers@storyboard-creation"],
+      "skills_rationale": {"101-skills/superpowers@storyboard-creation": "frame-by-frame boards with prompts; 68K installs"},
+      "max_takes": 2,
+      "est_tokens": 40000,
+      "no_gate_reason": "checked together with the assets at the near-final gate"
+    },
+    {
+      "id": "assets",
+      "name": "Asset production: AI shots, screen recordings, voice",
+      "human_team_equivalent": "producer with a motion designer",
+      "owner_agent": "producer",
+      "inputs": [".pipeline/out/storyboard.md"],
+      "outputs": [".pipeline/out/assets/", ".pipeline/out/assets/contact-sheet.jpg"],
+      "skill_queries": ["ai video generation"],
+      "skills": ["101-skills/superpowers@ai-video-generation"],
+      "skills_rationale": {"101-skills/superpowers@ai-video-generation": "one wrapper over Veo, Kling, Seedance and others"},
+      "max_takes": 3,
+      "est_tokens": 30000,
+      "external_usd": 6,
+      "notes": "draft each shot cheap, approve on the contact sheet, render the pick once; about $1 per 5 s clip",
+      "gate": {
+        "type": "human",
+        "count": 1,
+        "est_tokens": 0,
+        "criteria": ["shots match the storyboard", "no AI artefacts on hands, faces or text", "the app UI is real"],
+        "pass_rule": "owner approves the contact sheet"
+      }
+    },
+    {
+      "id": "edit",
+      "name": "Edit, motion, captions, sound",
+      "human_team_equivalent": "editor and sound designer",
+      "owner_agent": "builder",
+      "inputs": [".pipeline/out/assets/", ".pipeline/out/script.md"],
+      "outputs": [".pipeline/out/ad-9x16.mp4", ".pipeline/out/frames.jpg"],
+      "skill_queries": ["video editing captions", "html to video render"],
+      "skills": ["heygen-com/hyperframes@hyperframes"],
+      "skills_rationale": {"heygen-com/hyperframes@hyperframes": "HTML rendered to video: captions, motion text, safe zones as code"},
+      "max_takes": 3,
+      "est_tokens": 120000,
+      "gate": {
+        "type": "panel",
+        "agent": "panel",
+        "count": 30,
+        "est_tokens": 40000,
+        "criteria": ["WHAT and GAIN stated after watching", "stop rate on the first frame", "trust in the result"],
+        "pass_rule": "at least 70% state WHAT and GAIN; first-frame stop beats the concept-stage baseline",
+        "report": ".pipeline/gates/near-final-panel.md"
+      }
+    },
+    {
+      "id": "qa",
+      "name": "Platform specs QA",
+      "human_team_equivalent": "ad ops QA",
+      "owner_agent": "file-ops",
+      "inputs": [".pipeline/out/ad-9x16.mp4"],
+      "outputs": [".pipeline/out/specs.md"],
+      "skill_queries": [],
+      "skills": [],
+      "no_skill_reason": "ffprobe script: 1080x1920, 30 s or less, captions burned in, safe zones, loudness",
+      "max_takes": 1,
+      "est_tokens": 5000,
+      "gate": {
+        "type": "critic",
+        "agent": "critic",
+        "count": 1,
+        "est_tokens": 40000,
+        "criteria": ["final cut matches the approved script", "specs file is all green", "no claim outside facts.md", "the ad would pass a creative director's review"],
+        "pass_rule": "PASS from the Opus critic, then the owner sees the final before launch",
+        "report": ".pipeline/gates/final.md"
+      }
+    }
+  ],
+  "agents": [
+    {"name": "researcher", "role": "researcher", "model": "sonnet", "skills": ["ua5er/user-acquisition-skills@competitor-creative-parser", "agricidaniel/claude-ads@ads-competitor"]},
+    {"name": "writer", "role": "writer", "model": "sonnet", "skills": ["ua5er/user-acquisition-skills@market-to-creative-brief", "mbfinotti/advertising-skills@ad-hook-analyzer", "mbfinotti/advertising-skills@ugc-ad-scripts", "gooseworks-ai/goose-skills@write-video-ad-script", "101-skills/superpowers@storyboard-creation"]},
+    {"name": "producer", "role": "producer", "model": "sonnet", "skills": ["101-skills/superpowers@ai-video-generation"]},
+    {"name": "builder", "role": "builder", "model": "sonnet", "skills": ["heygen-com/hyperframes@hyperframes"]},
+    {"name": "file-ops", "role": "file-ops", "model": "haiku", "skills": []},
+    {"name": "critic", "role": "critic", "model": "opus", "skills": ["agricidaniel/claude-ads@ads-creative"]},
+    {"name": "panel", "role": "panel", "model": "haiku", "skills": ["ua5er/user-acquisition-skills@synthetic-audience-panel", "ua5er/user-acquisition-skills@creative-preflight-panel"]}
+  ],
+  "token_economy": {
+    "rules": "ua5er/marketing-token-economy",
+    "ledger": "tools/cost_ledger.py",
+    "budget_usd": 25,
+    "ask_above_usd": 2
+  },
+  "skill_map": [
+    {"task": "video ad", "triggers": ["video ad", "ugc ad", "reel ad", "tiktok ad", "ролик", "видеореклам"], "skills": ["mbfinotti/advertising-skills@ugc-ad-scripts", "mbfinotti/advertising-skills@ad-hook-analyzer", "heygen-com/hyperframes@hyperframes"], "agents": ["writer", "builder", "critic"]},
+    {"task": "competitor ad research", "triggers": ["competitor ads", "ad library", "конкурент"], "skills": ["ua5er/user-acquisition-skills@competitor-creative-parser"], "agents": ["researcher"]},
+    {"task": "ad audience test", "triggers": ["panel", "audience test", "виртуальн", "панел"], "skills": ["ua5er/user-acquisition-skills@synthetic-audience-panel", "ua5er/user-acquisition-skills@creative-preflight-panel"], "agents": ["panel"]}
+  ]
+}

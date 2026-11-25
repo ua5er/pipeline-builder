@@ -1,0 +1,104 @@
+{
+  "name": "<kebab-name>",
+  "goal": "<one sentence>",
+  "goal_type": "<from team-patterns.md>",
+  "budget_mode": "standard",
+  "facts_file": "facts.md",
+  "consumer_dependent": true,
+  "consumer_eval": {
+    "who": "<audience>",
+    "how_they_judge": [
+      "<first seconds>",
+      "<later>"
+    ],
+    "metrics": [
+      "<real metric>"
+    ]
+  },
+  "stages": [
+    {
+      "id": "script",
+      "name": "Script, shot list and on-screen text",
+      "human_team_equivalent": "scriptwriter, reviewed by the creative director and a claims check",
+      "owner_agent": "writer",
+      "inputs": [
+        ".pipeline/out/concepts.md",
+        "facts.md"
+      ],
+      "outputs": [
+        ".pipeline/out/script.md"
+      ],
+      "skill_queries": [
+        "video ad script",
+        "ugc ad script"
+      ],
+      "skills": [
+        "mbfinotti/advertising-skills@ugc-ad-scripts",
+        "gooseworks-ai/goose-skills@write-video-ad-script"
+      ],
+      "skills_rationale": {
+        "mbfinotti/advertising-skills@ugc-ad-scripts": "hook, body, CTA structure a creator can film",
+        "gooseworks-ai/goose-skills@write-video-ad-script": "ties every line to a sourced angle and product proof"
+      },
+      "max_takes": 3,
+      "est_tokens": 50000,
+      "gate": {
+        "type": "critic",
+        "agent": "critic",
+        "count": 1,
+        "est_tokens": 30000,
+        "criteria": [
+          "hook works sound-off in 2 s",
+          "one promise, proven on screen",
+          "every claim is in facts.md",
+          "30 s or less at natural pace",
+          "platform policy safe (no before/after body claims)"
+        ],
+        "pass_rule": "all criteria pass",
+        "report": ".pipeline/gates/script.md"
+      }
+    }
+  ],
+  "agents": [
+    {
+      "name": "writer",
+      "role": "writer",
+      "model": "sonnet",
+      "skills": [
+        "ua5er/user-acquisition-skills@market-to-creative-brief",
+        "mbfinotti/advertising-skills@ad-hook-analyzer",
+        "mbfinotti/advertising-skills@ugc-ad-scripts",
+        "gooseworks-ai/goose-skills@write-video-ad-script",
+        "101-skills/superpowers@storyboard-creation"
+      ]
+    },
+    {
+      "name": "critic",
+      "role": "critic",
+      "model": "opus",
+      "skills": [
+        "agricidaniel/claude-ads@ads-creative"
+      ]
+    }
+  ],
+  "token_economy": {
+    "rules": "ua5er/marketing-token-economy",
+    "ledger": "tools/cost_ledger.py",
+    "budget_usd": 25,
+    "ask_above_usd": 2
+  },
+  "skill_map": [
+    {
+      "task": "<task>",
+      "triggers": [
+        "<words users type>"
+      ],
+      "skills": [
+        "<owner/repo@skill>"
+      ],
+      "agents": [
+        "writer"
+      ]
+    }
+  ]
+}
